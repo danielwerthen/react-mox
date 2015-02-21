@@ -1,0 +1,25 @@
+{
+  "name": "react-mox",
+  "version": "0.0.1",
+  "description": "Writing declarative expectations for React component tests",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test --harmony"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielwerthen/react-mox.git"
+  },
+  "keywords": [
+    "React",
+    "Mocks",
+    "TestUtils",
+    "Jest"
+  ],
+  "author": "Daniel Werthén",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/danielwerthen/react-mox/issues"
+  },
+  "homepage": "https://github.com/danielwerthen/react-mox"
+}
