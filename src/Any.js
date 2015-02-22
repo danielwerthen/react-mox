@@ -3,7 +3,9 @@
 var React = require('react');
 
 var Any = React.createClass({
-  __test: "anyTag",
+  __test: {
+    ignoreTag: true
+  },
   render: function () {
     return <div>
       {this.props.children || false}

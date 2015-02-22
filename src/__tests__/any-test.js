@@ -2,6 +2,7 @@ jest.dontMock('../expect');
 var React = require('react/addons'),
   TestUtils = React.addons.TestUtils,
   Expect = require('../expect'),
+  Identity = require('../Identity'),
   Any = require('../Any');
 
 describe('Any tags', function () {
@@ -44,6 +45,28 @@ describe('Any tags', function () {
           <img src="hello"/>
           <img />
           <img />
+        </Any>
+        <p>Body</p>
+      </section>
+      );
+  });
+  describe('should be valid against any Composite tree', function () {
+    var glob = TestUtils.renderIntoDocument(<div>
+        <div>
+          <section>
+            <Identity className="con">
+              <img src="hello"/>
+            </Identity>
+            <p>Body</p>
+          </section>
+        </div>
+      </div>);
+
+    var found = TestUtils.findRenderedDOMComponentWithTag(glob, "section");
+    Expect(found).toMatch(
+      <section>
+        <Any >
+          <img src="hello"/>
         </Any>
         <p>Body</p>
       </section>

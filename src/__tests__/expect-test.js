@@ -4,7 +4,7 @@ var React = require('react/addons'),
   Lib = require('../index'),
   Identity = Lib.Identity;
 
-xdescribe('Expect', function () {
+describe('Expect', function () {
   describe('should match at top level', function () {
     var glob = TestUtils.renderIntoDocument(<div>
         <div>

@@ -3,6 +3,8 @@ var React = require('react/addons'),
   TestUtils = React.addons.TestUtils;
 
 
+
+
 module.exports = function (component) {
   var instMap = {};
 
@@ -35,28 +37,47 @@ module.exports = function (component) {
     }
   }
 
+  function getParentIndex(index) {
+    var spl = index.split('.');
+    return _.take(spl, spl.length -1).join('.');
+  }
+
+  function getSiblings(index) {
+    var prIdx = getParentIndex(index);
+    return _(_.keys(instMap))
+      .filter(function (key) {
+        return prIdx === getParentIndex(key);
+      })
+      .map(function (key) {
+        return instMap[key];
+      })
+      .value();
+  }
+
   function matchCompositeComponent(mock) {
     function compare(node, index) {
       var wth = instMap[index],
         testContext = getTestContext(node);
 
-      if (node._owner && _.isFunction(node._owner.__test)) {
-        return node._owner.__test(node, wth, getSiblings(index));
-      }
 
       it("should find a matching node", function () {
         expect(wth).toBeDefined();
-        if (!testContext || testContext.checkTag) {
+      });
+
+      if (!wth) {
+        return;
+      }
+
+      it("should find a matching node with proper tagname", function () {
+        if (!testContext || !testContext.ignoreTag) {
           expect(wth.tagName).toEqual(node.tagName);
         }
       });
-      if (!testContext || testContext.checkProps) {
-        _.map(getPropKeys(node), function (key) {
-          it("should find a matching property [" + key + "]", function () {
-            expect(wth.props[key]).toEqual(node.props[key]);
-          });
+      _.map(getPropKeys(node), function (key) {
+        it("should find a matching property [" + key + "]", function () {
+          expect(wth.props[key]).toEqual(node.props[key]);
         });
-      }
+      });
     }
 
     TestUtils.findAllInRenderedTree(mock, function (test) {
@@ -70,12 +91,60 @@ module.exports = function (component) {
     });
   }
 
+  function compareNodes(alpha, beta, tc) {
+    if (!(tc && tc.ignoreTag)) {
+      it("should find a matching node with proper tagname", function () {
+        expect(alpha.tagName).toEqual(beta.tagName);
+      });
+    } 
+    _.map(getPropKeys(beta), function (key) {
+      it("should find a matching property [" + key + "]", function () {
+        expect(alpha.props[key]).toEqual(beta.props[key]);
+      });
+    });
+  }
+
   function toMatch(mock) {
-    if (TestUtils.isCompositeComponent(mock)) {
-      matchCompositeComponent(mock);
-    } else {
-      var renderedMock = TestUtils.renderIntoDocument(mock);
-      matchCompositeComponent(renderedMock);
+    if (!TestUtils.isCompositeComponent(mock) && !TestUtils.isDOMComponent(mock)) {
+      var mock = TestUtils.renderIntoDocument(mock);
+    }
+    traverse(component, mock, [ component ]);
+
+    function traverse(alpha, beta, alphas) {
+      if (!beta) {
+        return;
+      }
+      var testContext = getTestContext(beta);
+
+      if (testContext && testContext.findNode) {
+        alpha = testContext.findNode(beta, alpha, alphas);
+        it("should find specific node", function () {
+          expect(alpha).toBeDefined();
+        });
+        beta = beta._renderedComponent;
+        _.map(beta._renderedChildren, function (child) {
+          traverse(alpha, child, alphas);
+        });
+        return;
+      } 
+      var index = makeIndex(beta, mock);
+      if (TestUtils.isDOMComponent(beta)) {
+
+        compareNodes(alpha, beta, testContext);
+        var betas = beta._renderedChildren;
+
+        _.map(betas, function (child, idx) {
+          if (TestUtils.isCompositeComponent(alpha)) {
+            var item = alpha._renderedComponent;
+            traverse(item, child, [item]);
+          } else {
+            traverse(alpha._renderedChildren[idx], child, alpha._renderedChildren);
+          }
+        });
+      } else if (TestUtils.isCompositeComponent(beta)) {
+        var al = alpha._renderedComponent || alpha;
+        traverse(al, beta._renderedComponent, [ al ]);
+      }
     }
   }
 

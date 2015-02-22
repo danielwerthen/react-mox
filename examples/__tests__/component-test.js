@@ -5,11 +5,11 @@ var React = require('react/addons'),
   Identity = Lib.Identity;
 
 jest.dontMock('../component');
-xdescribe('Component', function() {
+describe('Component', function() {
   var Component = require('../component'),
     rendered = TestUtils.renderIntoDocument(<Component />);
 
-  it('should match a rendered comparison', function() {
+  describe('should match a rendered comparison', function() {
     var comparison = TestUtils.renderIntoDocument(<Identity>
         <div>
           <h1>Header</h1>
@@ -21,7 +21,7 @@ xdescribe('Component', function() {
 
     Lib.expect(rendered).toMatch(comparison);
   });
-  it('should match a rendered comparison', function() {
+  describe('should match a rendered comparison', function() {
     Lib.expect(rendered).toMatch(<Identity>
         <div>
           <h1>Header</h1>
