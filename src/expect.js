@@ -118,9 +118,12 @@ module.exports = function (component) {
 
       if (testContext && testContext.findNode) {
         alpha = testContext.findNode(beta, alpha, alphas);
-        it("should find specific node", function () {
+        it("should locate node with NodeBy", function () {
           expect(alpha).toBeDefined();
         });
+        if (!alpha) {
+          return;
+        }
         beta = beta._renderedComponent;
         _.map(beta._renderedChildren, function (child) {
           traverse(alpha, child, alphas);

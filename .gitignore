@@ -32,3 +32,4 @@ test-build
 
 # Ignore swp files from vim
 *.swp
+*.swo
