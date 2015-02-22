@@ -26,3 +26,9 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+# Ignore our temp test dir
+test-build
+
+# Ignore swp files from vim
+*.swp

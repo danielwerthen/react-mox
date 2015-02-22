@@ -4,7 +4,8 @@
   "description": "Writing declarative expectations for React component tests",
   "main": "index.js",
   "scripts": {
-    "test": "gulp test --harmony"
+    "test": "./node_modules/gulp/bin/gulp.js test --harmony",
+    "tdd": "./node_modules/gulp/bin/gulp.js tdd --harmony"
   },
   "repository": {
     "type": "git",
@@ -21,5 +22,23 @@
   "bugs": {
     "url": "https://github.com/danielwerthen/react-mox/issues"
   },
-  "homepage": "https://github.com/danielwerthen/react-mox"
+  "homepage": "https://github.com/danielwerthen/react-mox",
+  "jest": {
+    "testDirectoryName": "__tests__",
+    "scriptPreprocessor": "./preprocessor.js",
+    "unmockedModulePathPatterns": [
+      "react"
+    ]
+  },
+  "dependencies": {
+    "lodash": "^3.3.0",
+    "react": "^0.12.2"
+  },
+  "devDependencies": {
+    "del": "^1.1.1",
+    "gulp": "^3.8.11",
+    "gulp-react": "^2.0.0",
+    "jest-cli": "^0.4.0",
+    "react-tools": "^0.12.2"
+  }
 }
