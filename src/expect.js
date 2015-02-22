@@ -1,10 +1,7 @@
 var React = require('react/addons'),
   _ = require('lodash'),
-  pureExpect = expect,
-  notExpect = function () {
-    return pureExpect.apply(null, Array.prototype.slice(arguments, 0)).not;
-  },
   TestUtils = React.addons.TestUtils;
+
 
 module.exports = function (component) {
   var instMap = {};
@@ -28,46 +25,61 @@ module.exports = function (component) {
     instMap[makeIndex(element, component)] = element;
   });
 
-  function matchBuilder(expect) {
-    function matchCompositeComponent(mock) {
-      function compare(node, index) {
-        var wth = instMap[index];
-        it("should find a matching node", function () {
-          expect(wth).toBeDefined();
-        });
+  function getTestContext(node) {
+    if (TestUtils.isCompositeComponent(node)) {
+      return node._renderedComponent && 
+        node._renderedComponent._owner &&
+        node._renderedComponent._owner.__test;
+    } else if (TestUtils.isDOMComponent(node)) {
+      return node._owner && node._owner.__test;
+    }
+  }
+
+  function matchCompositeComponent(mock) {
+    function compare(node, index) {
+      var wth = instMap[index],
+        testContext = getTestContext(node);
+
+      if (node._owner && _.isFunction(node._owner.__test)) {
+        return node._owner.__test(node, wth, getSiblings(index));
+      }
+
+      it("should find a matching node", function () {
+        expect(wth).toBeDefined();
+        if (!testContext || testContext.checkTag) {
+          expect(wth.tagName).toEqual(node.tagName);
+        }
+      });
+      if (!testContext || testContext.checkProps) {
         _.map(getPropKeys(node), function (key) {
           it("should find a matching property [" + key + "]", function () {
             expect(wth.props[key]).toEqual(node.props[key]);
           });
         });
       }
-
-      TestUtils.findAllInRenderedTree(mock, function (test) {
-        if (mock === test) {
-          return; //Ignore the root node
-        }
-        var index = makeIndex(test, mock);
-        describe("Matching node " + (test._tag || "unnamned") + " at " + index, function () {
-          compare(test, index);
-        });
-      });
     }
 
-    function toMatch(mock) {
-      if (TestUtils.isCompositeComponent(mock)) {
-        matchCompositeComponent(mock);
-      } else {
-        var renderedMock = TestUtils.renderIntoDocument(mock);
-        matchCompositeComponent(renderedMock);
+    TestUtils.findAllInRenderedTree(mock, function (test) {
+      if (mock === test) {
+        return; //Ignore the root node
       }
+      var index = makeIndex(test, mock);
+      describe("Matching node " + (test._tag || "unnamned") + " at " + index, function () {
+        compare(test, index);
+      });
+    });
+  }
+
+  function toMatch(mock) {
+    if (TestUtils.isCompositeComponent(mock)) {
+      matchCompositeComponent(mock);
+    } else {
+      var renderedMock = TestUtils.renderIntoDocument(mock);
+      matchCompositeComponent(renderedMock);
     }
-    return toMatch;
   }
 
   return {
-    toMatch: matchBuilder(pureExpect),
-    not: {
-      toMatch: matchBuilder(notExpect)
-    }
+    toMatch: toMatch
   };
 };

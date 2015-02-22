@@ -2,10 +2,12 @@
 
 var React = require('react');
 
-var Component = React.createClass({
+var Identity = React.createClass({
+  __test: function () {
+  },
   render: function () {
-    return this.props.children;
+    return this.props.children || false;
   }
 });
 
-module.exports = Component;
+module.exports = Identity;

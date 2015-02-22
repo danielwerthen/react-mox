@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 var React = require('react/addons'),
   TestUtils = React.addons.TestUtils,
-  Lib = require('../../index'),
+  Lib = require('../index'),
   Identity = Lib.Identity;
 
 jest.dontMock('../component');
