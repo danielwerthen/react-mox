@@ -1,10 +1,11 @@
 jest.dontMock('../expect');
 var React = require('react/addons'),
   TestUtils = React.addons.TestUtils,
-  Lib = require('../../index');
+  Lib = require('../../index'),
+  Identity = Lib.Identity;
 
 describe('Expect', function () {
-  xdescribe('should match at top level', function () {
+  describe('should match at top level', function () {
     var glob = TestUtils.renderIntoDocument(<div>
         <div>
           <p>not <span>spanned</span>matching</p>
@@ -17,7 +18,7 @@ describe('Expect', function () {
         </div>
       </div>);
   });
-  xdescribe('should not match at top level', function () {
+  describe('should not match at top level', function () {
     var glob = TestUtils.renderIntoDocument(<div>
         <div>
           <p>not <span>spanned</span>matching</p>
@@ -30,7 +31,7 @@ describe('Expect', function () {
         </div>
       </div>);
   });
-  xdescribe('should match at second level', function () {
+  describe('should match at second level', function () {
     var glob = TestUtils.renderIntoDocument(<div>
         <div>
           <p>
@@ -49,7 +50,11 @@ describe('Expect', function () {
   describe('should match composite node', function () {
     var Comp = React.createClass({
       render: function () {
-        return <p>Inner</p>;
+        return <p>
+          <span>
+            Inner
+          </span>
+        </p>;
       }
     });
     var glob = TestUtils.renderIntoDocument(<div>
@@ -60,15 +65,40 @@ describe('Expect', function () {
         </div>
       </div>);
 
-    console.info("Continue with building a better rootNodeId system");
-
     var found = TestUtils.findRenderedComponentWithType(glob, Comp);
     Lib.expect(found).toMatch(
-      <div>
+      <Identity>
         <p>
-        Inner
+          <span>
+            Inner
+          </span>
         </p>
-      </div>
+      </Identity>
+      );
+  });
+  describe('should match DOM node', function () {
+    var Comp = React.createClass({
+      render: function () {
+        return <p>
+          <span>
+            Inner
+          </span>
+        </p>;
+      }
+    });
+    var glob = TestUtils.renderIntoDocument(<div>
+        <div>
+          <Comp />
+        </div>
+      </div>);
+
+    var found = TestUtils.findRenderedDOMComponentWithTag(glob, "p");
+    Lib.expect(found).toMatch(
+        <p>
+          <span>
+            Inner
+          </span>
+        </p>
       );
   });
 });

@@ -10,8 +10,7 @@ module.exports = function (component) {
   var instMap = {};
 
   function makeIndex(node, root) {
-    var t = component._rootNodeID + node._rootNodeID.substr(root._rootNodeID.length);
-    return t;
+    return component._rootNodeID + node._rootNodeID.substr(root._rootNodeID.length);
   }
 
   function getPropKeys(node) {
@@ -48,7 +47,6 @@ module.exports = function (component) {
           return; //Ignore the root node
         }
         var index = makeIndex(test, mock);
-        console.info(test._rootNodeID);
         describe("Matching node " + (test._tag || "unnamned") + " at " + index, function () {
           compare(test, index);
         });
